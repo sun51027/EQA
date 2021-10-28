@@ -22,7 +22,7 @@ public:
 
     void runFillingLoop(TH1D* inputH);
 
-    void setDatafileName(string inputFilename);
+    void setDatafile(string inputFilename);
     void setEndDT(string inputDTStr);
     void setQuantity(string inputStr) { quantity = inputStr; };
     void setStartDT(string inputDTStr);
@@ -45,8 +45,6 @@ private:
     Calendar* fileDT;
     Calendar* startDT;
     Calendar* endDT;
-
-    void prepareDatafile();
 
     double convertVolt2MeV(double inputV);
 };

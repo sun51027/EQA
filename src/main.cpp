@@ -33,10 +33,10 @@ int main(int argc, char** argv) {
 	else if(arg == "-a" || arg == "--singleFile") {
 	    anaType = 0;
 	}
-	else if(arg == "-r" || arg == "--timeRange") {
+	else if(arg == "-i" || arg == "--timeInterval") {
 	    anaType = 1;
 	}
-	else if(arg == "-p" || arg == "--period") {
+	else if(arg == "-p" || arg == "--periods") {
 	    anaType = 2;
 	}
     }

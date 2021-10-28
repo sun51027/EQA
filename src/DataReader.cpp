@@ -1,8 +1,14 @@
 #include "DataReader.h"
 
+#include <TFile.h>
+#include <TH1.h>
+#include <TTree.h>
+
+#include "Calendar.h"
+
 DataReader::DataReader(string inputDatafileName) {
-    datafileName = inputDatafileName;
-    prepareDatafile();
+    file = nullptr;
+    setDatafile(inputDatafileName);
 
     quantity = "Voltage";
 
@@ -60,9 +66,19 @@ void DataReader::runFillingLoop(TH1D* inputH) {
 
 
 
-void DataReader::setDatafileName(string inputFilename) {
+void DataReader::setDatafile(string inputFilename) {
     datafileName = inputFilename;
-    prepareDatafile();
+    if(file != nullptr) {
+	file->Close();
+	delete file;
+    }
+
+    string datafilePath = "data/" + datafileName + ".root";
+    file = new TFile(datafilePath.c_str(), "READ");
+    file->GetObject("detector_A", tree);
+
+    tree->SetBranchAddress("ch0", &ch0, &b_ch0);
+    tree->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
 }
 
 
@@ -75,22 +91,6 @@ void DataReader::setEndDT(string inputDTStr) {
 
 void DataReader::setStartDT(string inputDTStr) {
     startDT->setDateTime(inputDTStr);
-}
-
-
-
-void DataReader::prepareDatafile() {
-    if(file != nullptr) {
-	file->Close();
-	delete file;
-    }
-
-    string datafilePath = "data/" + datafileName + ".root";
-    file = new TFile(datafilePath.c_str(), "READ");
-    file->GetObject("detector_A", tree);
-
-    tree->SetBranchAddress("ch0", &ch0, &b_ch0);
-    tree->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
 }
 
 
