@@ -1,29 +1,58 @@
 #include "HistMaker.h"
 
 #include <dirent.h>
+#include <fstream>
 
 #include <TFile.h>
 #include <TH1.h>
 
 #include "Calendar.h"
+#include "DataReader.h"
+#include "DocReader.h"
 
 HistMaker::HistMaker() {
     prepareDatafileList();
-    outfile = nullptr;
+    way2SetTimeInterval = "listFile";
+    timeIntervalListFilename = "document/defaultTIList.txt";
+    quantity = "Voltage";
+
+    outfileName = "test";
     outfileOpenState = "RECREATE";
+    outfile = nullptr;
 }
 
 
 
-HistMaker::~HistMaker() {}
+HistMaker::~HistMaker() {
+    if(outfile != nullptr) {
+	outfile->Close();
+	delete outfile;
+    }
+}
 
 
 
-void HistMaker::execute() {}
+void HistMaker::execute() {
+    setOutfile();
+    prepareTimeIntervalList();
+    makeHistogram();
+}
 
 
 
-void HistMaker::test() {}
+void HistMaker::test() {
+    prepareTimeIntervalList();
+
+    for(unsigned int i = 0; i < startDTofTI.size(); i++) {
+	cout << "\"" << startDTofTI[i] << " - " << endDTofTI[i] << "\"" << endl;
+    }
+}
+
+
+
+void HistMaker::setOutfile() {
+    setOutfile(outfileName);
+}
 
 
 
@@ -42,8 +71,6 @@ void HistMaker::setOutfile(string inputFilename) {
 
 
 void HistMaker::makeHistogram() {
-    //initialize
-
     for(unsigned int iTI = 0; iTI < startDTofTI.size(); iTI++) {
 	Calendar *startDT = new Calendar(startDTofTI[iTI]);
 	Calendar* endDT = new Calendar(endDTofTI[iTI]);
@@ -54,12 +81,12 @@ void HistMaker::makeHistogram() {
 		endDT->getDateTime().c_str());
 	TH1D* h = new TH1D(startDT->getTime().c_str(), htitle, bin, min, max);
 
-	string firstLayerFolderName = "HistoCh0";
-	if(outfile->GetDirectory(firstLayerFolderName.c_str()) == nullptr)
-	    outfile->mkdir(firstLayerFolderName.c_str());
+	string firstLayerDirName = "HistoCh0";
+	if(outfile->GetDirectory(firstLayerDirName.c_str()) == nullptr)
+	    outfile->mkdir(firstLayerDirName.c_str());
 
 	char histPath[150];
-	sprintf(histPath, "%s/%s", firstLayerFolderName.c_str(), startDT->getDate().c_str());
+	sprintf(histPath, "%s/%s", firstLayerDirName.c_str(), startDT->getDate().c_str());
 	if(outfile->GetDirectory(histPath) == nullptr)
 	    outfile->mkdir(histPath, histPath);
 
@@ -76,8 +103,13 @@ void HistMaker::makeHistogram() {
 
 	    if(willBeDealed) {
 		cout << thisDF << endl;
+		DataReader* dr = new DataReader(thisDF);
+		dr->setQuantity(quantity);
+		dr->setStartDT(startDT->getDateTime());
+		dr->setEndDT(endDT->getDateTime());
+		dr->runFillingLoop(h);
 
-		//DataReader* dr
+		delete dr;
 	    }
 	}
 
@@ -116,6 +148,62 @@ void HistMaker::prepareDatafileList() {
     }
 
     sort(datafileList.begin(), datafileList.end());
+}
+
+
+
+void HistMaker::prepareTimeIntervalList() {
+    startDTofTI.clear();
+    endDTofTI.clear();
+
+    if(way2SetTimeInterval == "command") {
+    } else if(way2SetTimeInterval == "listFile") {
+	DocReader* docr = new DocReader(timeIntervalListFilename);
+
+	string txtfileFormat = docr->readStrValue("FileFormat");
+	if(txtfileFormat == "AssignedTimeIntervals") {
+	    ifstream TIListFile;
+	    TIListFile.open(timeIntervalListFilename.c_str());
+
+	    string startline;
+	    string endline;
+	    string line;
+	    while(TIListFile.is_open()) {
+		if(TIListFile.eof()) break;
+
+		getline(TIListFile, line);
+		if(!line.empty()) {
+		    if(line.find("-") == string::npos)
+			continue;
+
+		    startline = line.substr(0, line.find_first_of("-"));
+		    endline = line.substr(line.find_first_of("-"));
+
+		    startDTofTI.push_back(startline.substr(0, startline.find_last_not_of(" -") + 1));
+		    endDTofTI.push_back(endline.substr(endline.find_first_not_of(" -")));
+		}
+	    }
+
+	    TIListFile.close();
+	} else if(txtfileFormat == "ContinuousPeriods") {
+	    string startline = docr->readStrValue("StartTime");
+	    int passedHour = docr->readIntValue("Hour");
+	    int passedMin = docr->readIntValue("Minute");
+	    double passedSec = docr->readDoubleValue("Second");
+	    int numOfTI = docr->readIntValue("NumberOfTimeIntervals");
+
+	    Calendar* dt = new Calendar(startline);
+	    for(int i = 0; i < numOfTI; i++) {
+		startDTofTI.push_back(dt->getDateTime());
+		dt->addDuration(0, 0, passedHour, passedMin, passedSec);
+		endDTofTI.push_back(dt->getDateTime());
+	    }
+
+	    delete dt;
+	}
+
+	delete docr;
+    }
 }
 
 
@@ -170,7 +258,7 @@ bool HistMaker::hasDatafileInInterval(Calendar* inputDT, Calendar* startDT, Cale
 	output = true;
     else if(*inputDT < *startDT) {
 	if(nextDT != nullptr) {
-	    if(*nextDT > *startDT)
+	    if(*nextDT >= *startDT)
 		output = true;
 	    else
 		output = false;

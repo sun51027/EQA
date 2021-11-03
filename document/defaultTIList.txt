@@ -1,0 +1,6 @@
+FileFormat: ContinuousPeriods
+StartTime: 20210418000000
+Hour: 2
+Minute: 0
+Second: 0
+NumberOfTimeIntervals:3

@@ -22,4 +22,4 @@ $(BUILDDIR)/%.o:	$(SRCDIR)/%.$(SRCTXT) $(INCDIR)/%.h
 	g++ -c $(CXXFLAGS) $(ROOTFLAGS) $< -o $@
 
 clean:
-	rm -f $(TARGET) $(BUILDDIR)/*.o include/*~ $(SRCDIR)/*~ ./*~ recordDoc/*~
+	rm -f $(TARGET) $(BUILDDIR)/*.o include/*~ $(SRCDIR)/*~ ./*~ document/*~

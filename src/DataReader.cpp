@@ -43,7 +43,8 @@ void DataReader::runFillingLoop(TH1D* inputH) {
     Long64_t nentries = tree->GetEntries();
 
     for(Long64_t entry = 0; entry < nentries; ++entry) {
-	cout << "Processed ... " << entry << "/" << nentries << " events" << endl;
+	if(entry % 1000 == 0)
+	    cout << "Processed ... " << entry << "/" << nentries << " events" << endl;
 
 	tree->GetEntry(entry);
 
@@ -96,8 +97,8 @@ void DataReader::setStartDT(string inputDTStr) {
 
 
 double DataReader::convertVolt2MeV(double inputV) {
-    double p0 = 0.107648;
-    double p1 = 1.034203;
+    double p0 = 0.112214;
+    double p1 = 1.;
 
     return (inputV - p0)/p1;
 }
