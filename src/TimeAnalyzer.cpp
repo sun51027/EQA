@@ -15,6 +15,7 @@ TimeAnalyzer::TimeAnalyzer() {
     infile = nullptr;
     outfile = nullptr;
     dataTree = nullptr;
+    isNewTree = false;
 }
 
 
@@ -122,7 +123,7 @@ void TimeAnalyzer::setTermList(string condition) {
 
 
 void TimeAnalyzer::prepareDataTree(string condition) {
-    if(dataTree != nullptr) {
+    if(dataTree != nullptr && isNewTree) {
 	delete dataTree;
 	dataTree = nullptr;
     }
@@ -144,8 +145,8 @@ void TimeAnalyzer::prepareDataTree(string condition) {
     dataTree->Branch("second", &outsec, "second/D");
 
     for(unsigned int iER = 0; iER < ERList.size(); iER++) {
+	string thisER = ERList[iER];
 	for(unsigned int iTerm = 0; iTerm < termList.size(); iTerm++) {
-	    string thisER = ERList[iER];
 	    string thisTerm = termList[iTerm];
 	    string outValName = thisER + "_" + thisTerm;
 
@@ -161,6 +162,8 @@ void TimeAnalyzer::prepareDataTree(string condition) {
 	    }
 	}
     }
+
+    isNewTree = true;
 }
 
 
@@ -172,6 +175,7 @@ void TimeAnalyzer::analyzeByFitting() {
     TList* listDate = firstLayerDir->GetListOfKeys();
     listDate->Sort();
 
+    int ientry = 0;
     TIter iterDate(listDate);
     TObject* objDate = nullptr;
     while((objDate = iterDate())) {
@@ -181,7 +185,6 @@ void TimeAnalyzer::analyzeByFitting() {
 	TIter iterTime(listTime);
 	TObject* objTime = nullptr;
 	while((objTime = iterTime())) {
-	    static int ientry = 0;
 	    Calendar* thisDT = new Calendar((string)(objDate->GetName()) + (string)(objTime->GetName()));
 	    TH1D* thisH = (TH1D*)dirDate->Get(objTime->GetName());
 
@@ -234,4 +237,55 @@ void TimeAnalyzer::analyzeByFitting() {
 
 void TimeAnalyzer::analyzeByCounting() {
     prepareDataTree("counting");
+
+    TDirectory* firstLayerDir = infile->GetDirectory("HistoCh0");
+    TList* listDate = firstLayerDir->GetListOfKeys();
+    listDate->Sort();
+
+    int ientry = 0;
+    TIter iterDate(listDate);
+    TObject* objDate = nullptr;
+    while((objDate = iterDate())) {
+	TDirectory* dirDate = firstLayerDir->GetDirectory(objDate->GetName());
+	TList* listTime = dirDate->GetListOfKeys();
+
+	TIter iterTime(listTime);
+	TObject* objTime = nullptr;
+	while((objTime = iterTime())) {
+	    Calendar* thisDT = new Calendar((string)(objDate->GetName()) + (string)(objTime->GetName()));
+
+	    entryNo = ientry;
+	    outyr = thisDT->getYear();
+	    outmon = thisDT->getMonth();
+	    outday = thisDT->getMDay();
+	    outhr = thisDT->getHour();
+	    outmin = thisDT->getMinute();
+	    outsec = thisDT->getSecond();
+
+	    for(unsigned int iER = 0; iER < ERList.size(); iER++) {
+		string thisER = ERList[iER];
+		if(thisER == "sum029n060")
+		    continue;
+
+		string histPath = "window_" + thisER + "/" + (string)(objDate->GetName()) + "/" + (string)(objTime->GetName());
+		TH1D* thisH = (TH1D*)infile->Get(histPath.c_str());
+
+		string tag = thisER + "_counts";
+		outVal[tag] = thisH->GetEntries();
+		tag = thisER + "_counts_Err";
+		outVal[tag] = TMath::Sqrt(thisH->GetEntries());
+	    }
+
+	    outVal["sum029n060_counts"] = outVal["peak029_counts"] + outVal["peak060_counts"];
+	    outVal["sum029n060_counts_Err"] = TMath::Sqrt(outVal["peak29_counts_Err"]*outVal["peak029_counts_Err"] + outVal["peak060_counts_Err"]*outVal["peak060_counts_Err"]);
+
+	    dataTree->Fill();
+
+	    delete thisDT;
+	    ientry++;
+	    
+	}
+    }
+
+    dataTree->Write();
 }

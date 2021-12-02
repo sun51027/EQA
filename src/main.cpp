@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 
+#include "GraphPrinter.h"
 #include "HistMaker.h"
 #include "TimeAnalyzer.h"
 
@@ -16,8 +17,11 @@ void main_makeHistogram2();
 void main_makeHistogram3();
 void main_fittingAnalysis();
 void main_countingAnalysis();
+void main_printGraph();
 
 int anaType = 0;
+bool autoNaming = false;
+bool doRewriteTIListFile = false;
 string infileName = "";
 string outfileName = "";
 string outfileOpenState = "";
@@ -62,6 +66,10 @@ int main(int argc, char** argv) {
 	    anaType = 4;
 	    iarg++;
 	}
+	else if(arg == "-g" || arg == "--printGraph") {
+	    anaType = 5;
+	    iarg++;
+	}
 	else if(arg == "-if" || arg == "--inputFile") {
 	    iarg++;
 	    infileName = argv[iarg];
@@ -80,6 +88,14 @@ int main(int argc, char** argv) {
 	    outfileOpenState = "UPDATE";
 	    iarg++;
 	}
+	else if(arg == "-TI" || arg == "--rewriteTI") {
+	    doRewriteTIListFile = true;
+	    iarg++;
+	}
+	else if(arg == "-an" || arg == "--autoNaming") {
+	    autoNaming = true;
+	    iarg++;
+	}
     }
 
     switch(anaType) {
@@ -95,19 +111,33 @@ int main(int argc, char** argv) {
     case 3:
 	main_fittingAnalysis();
 	break;
+    case 4:
+	main_countingAnalysis();
+	break;
+    case 5:
+	main_printGraph();
+	break;
     }
 
     return 0;
 }
 
-void main_makeHistogram1() { // for single file
+void main_makeHistogram1() {
     HistMaker* hm = new HistMaker();
-    if(outfileName != "")
-	hm->setOutfile(outfileName);
+    
+    if(infileName != "") {
+	hm->setTIListFilename(infileName);
+    }
 
-    if(outfileOpenState != "")
+    if(outfileOpenState != "") {
 	hm->setOutfileOpenState(outfileOpenState);
+    }
 
+    if(outfileName != "") {
+	hm->setOutfile(outfileName);
+    }
+
+    hm->setDoRewriteTIListFile(doRewriteTIListFile);
     hm->setQuantity("Energy");
     hm->execute();
 
@@ -168,9 +198,27 @@ void main_countingAnalysis() {
     delete ta;
 }
 
+void main_printGraph() {
+    GraphPrinter* gp = new GraphPrinter();
+
+    if(infileName != "")
+	gp->setInfile(infileName);
+    else
+	gp->setInfile();
+
+    if(outfileName != "")
+	gp->setOutputGraphName(outfileName);
+
+    gp->execute();
+
+    delete gp;
+}
+
 void main_test() {
-    HistMaker* obj = new HistMaker();
-    obj->test();
+    //HistMaker* obj = new HistMaker();
+    GraphPrinter* obj = new GraphPrinter();
+    obj->setInfile("fitOutput");
+    //obj->test();
     delete obj;
 }
 

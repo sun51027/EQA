@@ -1,4 +1,4 @@
-FileFormat: ContinuousPeriods
+FileFormat: ContinuousPeriodsCountTI
 StartTime: 20210418000000
 Hour: 2
 Minute: 0

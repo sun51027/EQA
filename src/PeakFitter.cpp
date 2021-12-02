@@ -14,6 +14,9 @@ PeakFitter::PeakFitter(TH1D* inputH, string inputPeakType) {
     isZoomed = false;
     doesOutput = true;
 
+    fitptr = nullptr;
+    isFitSuccessful = false;
+
     outputGraphFilename = "default";
     outputGraphFolder = "plotting";
 
@@ -79,11 +82,10 @@ void PeakFitter::setPeakNumb(int i) {
 void PeakFitter::fitPeak() {
     TCanvas* c = new TCanvas("c", "c", 1400, 800);
 
-    TF1* peakFunc = new TF1("peakFunc", fittingFuncStr.c_str(), -0.5, 4.5);
+    cout << fittingFuncStr << endl;
+    TF1* peakFunc = new TF1("peakFunc", fittingFuncStr.c_str(), lowerRange, upperRange);
     fitptr = nullptr;
 
-    cout << "Range: " << lowerRange << ", " << upperRange << endl;
-    peakFunc->SetRange(lowerRange, upperRange);
     peakFunc->SetParameter(0, startCPow);
     peakFunc->SetParameter(1, startEPow);
 
@@ -91,9 +93,9 @@ void PeakFitter::fitPeak() {
     peakFunc->SetParLimits(1, lowerEPow, upperEPow);
 
     for(int iPeak = 0; iPeak < peakNumb; iPeak++) {
-	peakFunc->SetParameters(3*iPeak + 2, startCGauss[iPeak]);
-	peakFunc->SetParameters(3*iPeak + 3, startMean[iPeak]);
-	peakFunc->SetParameters(3*iPeak + 4, startSTD[iPeak]);
+	peakFunc->SetParameter(3*iPeak + 2, startCGauss[iPeak]);
+	peakFunc->SetParameter(3*iPeak + 3, startMean[iPeak]);
+	peakFunc->SetParameter(3*iPeak + 4, startSTD[iPeak]);
 
 	peakFunc->SetParLimits(3*iPeak + 2, lowerCGauss[iPeak], upperCGauss[iPeak]);
 	peakFunc->SetParLimits(3*iPeak + 3, lowerMean[iPeak], upperMean[iPeak]);
@@ -106,23 +108,48 @@ void PeakFitter::fitPeak() {
     fitptr = histogram->Fit(peakFunc, "S", "", lowerRange, upperRange);
     histogram->SetStats(kFALSE);
 
-    chi2 = fitptr->Chi2();
-    ndf = fitptr->Ndf();
+    if(fitptr == 0) {
+	isFitSuccessful = true;
 
-    cPow = fitptr->Parameter(0);
-    ePow = fitptr->Parameter(1);
+	chi2 = fitptr->Chi2();
+	ndf = fitptr->Ndf();
 
-    cPowErr = fitptr->ParError(0);
-    ePowErr = fitptr->ParError(1);
+	cPow = fitptr->Parameter(0);
+	ePow = fitptr->Parameter(1);
 
-    for(int iPeak = 0; iPeak < peakNumb; iPeak++) {
-	cGauss[iPeak] = fitptr->Parameter(3*iPeak + 2);
-	mean[iPeak] = fitptr->Parameter(3*iPeak + 3);
-	std[iPeak] = fitptr->Parameter(3*iPeak + 4);
+	cPowErr = fitptr->ParError(0);
+	ePowErr = fitptr->ParError(1);
 
-	cGaussErr[iPeak] = fitptr->ParError(3*iPeak + 2);
-	meanErr[iPeak] = fitptr->ParError(3*iPeak + 3);
-	stdErr[iPeak] = fitptr->ParError(3*iPeak + 4);
+	for(int iPeak = 0; iPeak < peakNumb; iPeak++) {
+	    cGauss[iPeak] = fitptr->Parameter(3*iPeak + 2);
+	    mean[iPeak] = fitptr->Parameter(3*iPeak + 3);
+	    std[iPeak] = fitptr->Parameter(3*iPeak + 4);
+
+	    cGaussErr[iPeak] = fitptr->ParError(3*iPeak + 2);
+	    meanErr[iPeak] = fitptr->ParError(3*iPeak + 3);
+	    stdErr[iPeak] = fitptr->ParError(3*iPeak + 4);
+	}
+    } else {
+	isFitSuccessful = false;
+
+	chi2 = 0.;
+	ndf = 0.;
+
+	cPow = 0.;
+	ePow = 0.;
+
+	cPowErr = 0.;
+	ePowErr = 0.;
+
+	for(int iPeak = 0; iPeak < peakNumb; iPeak++) {
+	    cGauss[iPeak] = 0.;
+	    mean[iPeak] = 0.;
+	    std[iPeak] = 0.;
+
+	    cGaussErr[iPeak] = 0.;
+	    meanErr[iPeak] = 0.;
+	    stdErr[iPeak] = 0.;
+	}
     }
 
     c->Update();
@@ -173,29 +200,29 @@ void PeakFitter::setFittingParameters() {
 	outputGraphFolder = "plotting/fitting/peak029";
 	setPeakNumb(1);
 
-	setRange(0.25, 0.35);
+	setRange(0.26, 0.3);
 	setCPow(10., -100., 100.);
-	setEPow(-3., -5., 0.);
+	setEPow(-3., -1000., 0.);
 	setCGauss(1000., 0., 1.0e8);
-	setMean(0.29, 0.275, 0.3);
+	setMean(0.28, 0.27, 0.29);
 	setSTD(0.01, 0., 0.1);
     } else if(peakType == "peak060") {
 	outputGraphFolder = "plotting/fitting/peak060";
 	setPeakNumb(1);
 
-	setRange(0.5, 0.7);
+	setRange(0.52, 0.7);
 	setCPow(10., -100., 100.);
-	setEPow(-3., -5., 0.);
+	setEPow(-3., -1000., 0.);
 	setCGauss(1000., 0., 1.0e8);
-	setMean(0.6, 0.55, 0.65);
+	setMean(0.6, 0.57, 0.64);
 	setSTD(0.01, 0., 0.1);
     } else if(peakType == "peak146") {
 	outputGraphFolder = "plotting/fitting/peak146";
 	setPeakNumb(1);
 
-	setRange(1.3, 1.6);
+	setRange(1.3, 1.55);
 	setCPow(10., -100., 100.);
-	setEPow(-3., -5., 0.);
+	setEPow(-3., -1000., 0.);
 	setCGauss(1000., 0., 1.0e8);
 	setMean(1.45, 1.4, 1.5);
 	setSTD(0.01, 0., 0.1);
@@ -203,7 +230,7 @@ void PeakFitter::setFittingParameters() {
 	setPeakNumb(0);
 
 	setRange(0.4, 0.9);
-	setCPow(10., -100., 100.);
+	setCPow(10., -100., 10000.);
 	setEPow(-3., -1000., 0.);
     }
 }

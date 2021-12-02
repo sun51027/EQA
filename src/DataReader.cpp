@@ -12,9 +12,9 @@ DataReader::DataReader(string inputDatafileName) {
 
     quantity = "Voltage";
 
-    fileDT = new Calendar(datafileName);
-    startDT = new Calendar(datafileName);
-    endDT = new Calendar(datafileName);
+    fileDT = new Calendar(actualDTStr);
+    startDT = new Calendar(actualDTStr);
+    endDT = new Calendar(actualDTStr);
 }
 
 
@@ -43,22 +43,52 @@ void DataReader::runFillingLoop(TH1D* inputH) {
     Long64_t nentries = tree->GetEntries();
 
     for(Long64_t entry = 0; entry < nentries; ++entry) {
-	if(entry % 1000 == 0)
+	if(entry % 5000 == 0)
 	    cout << "Processed ... " << entry << "/" << nentries << " events" << endl;
 
 	tree->GetEntry(entry);
 
 	double fillingValue = ch0;
 
-	Calendar* eventDT = new Calendar(datafileName);
+	Calendar* eventDT = new Calendar(actualDTStr);
 	eventDT->addDuration(0, 0, 0, 0, timestamp);
 
-	if(*eventDT >= *startDT &&
-	   *eventDT <= *endDT) {
+	if(*eventDT >= *startDT && *eventDT <= *endDT) {
 	    if(quantity == "Voltage")
 		inputH->Fill(fillingValue);
 	    else if(quantity == "Energy")
 		inputH->Fill(convertVolt2MeV(fillingValue));
+	}
+
+	delete eventDT;
+    }
+}
+
+
+
+void DataReader::runFillingWithWindow(TH1D* inputH, double low, double up) {
+    Long64_t nentries = tree->GetEntries();
+
+    for(Long64_t entry = 0; entry < nentries; ++entry) {
+	if(entry % 5000 == 0)
+	    cout << "Processed ... " << entry << "/" << nentries << " events" << endl;
+
+	tree->GetEntry(entry);
+
+	double fillingValue = ch0;
+
+	Calendar* eventDT = new Calendar(actualDTStr);
+	eventDT->addDuration(0, 0, 0, 0, timestamp);
+
+	if(*eventDT >= *startDT  && *eventDT <= *endDT) {
+	    if(quantity == "Voltage") {
+		if(fillingValue >= low && fillingValue <= up)
+		    inputH->Fill(fillingValue);
+	    } else if(quantity == "Energy") {
+		fillingValue = convertVolt2MeV(fillingValue);
+		if(fillingValue >= low && fillingValue <= up)
+		    inputH->Fill(fillingValue);
+	    }
 	}
 
 	delete eventDT;
@@ -80,6 +110,8 @@ void DataReader::setDatafile(string inputFilename) {
 
     tree->SetBranchAddress("ch0", &ch0, &b_ch0);
     tree->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
+
+    actualDTStr = datafileName.substr(datafileName.find_first_of("/") + 1);
 }
 
 

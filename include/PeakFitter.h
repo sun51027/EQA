@@ -77,6 +77,7 @@ private:
     string outputGraphFolder;
 
     TFitResultPtr fitptr;
+    bool isFitSuccessful;
 
     double chi2;
     int    ndf;

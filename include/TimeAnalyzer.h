@@ -55,6 +55,7 @@ private:
     string outfileOpenState;
     TFile* outfile;
     TTree* dataTree;
+    bool   isNewTree;
 };
 
 #endif

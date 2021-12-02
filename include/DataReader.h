@@ -17,19 +17,24 @@ public:
     DataReader(string inputDatafileName);
     ~DataReader();
 
-    void execute();
-    void test();
+    void      execute();
+    void      test();
 
-    void runFillingLoop(TH1D* inputH);
+    void      runFillingLoop(TH1D* inputH);
+    void      runFillingWithWindow(TH1D* inputH, double low, double up);
 
-    void setDatafile(string inputFilename);
-    void setEndDT(string inputDTStr);
-    void setQuantity(string inputStr) { quantity = inputStr; };
-    void setStartDT(string inputDTStr);
+    Calendar* getEndDT()   { return endDT; };
+    Calendar* getStartDT() { return startDT; };
+
+    void      setDatafile(string inputFilename);
+    void      setEndDT(string inputDTStr);
+    void      setQuantity(string inputStr) { quantity = inputStr; };
+    void      setStartDT(string inputDTStr);
 
 private:
     vector<double> vd;
     string    datafileName;
+    string    actualDTStr;
     
     TFile*    file;
     TTree*    tree;

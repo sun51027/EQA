@@ -19,9 +19,12 @@ public:
     void execute();
     void test();
 
+    void setTIListFilename(string inputStr) { timeIntervalListFilename = inputStr; };
+
     void setOutfile();
     void setOutfile(string inputFilename);
     void setOutfileOpenState(string inputStr) { outfileOpenState = inputStr; };
+    void setDoRewriteTIListFile(bool inputB) { doRewriteTIListFile = inputB; };
     void setQuantity(string inputStr) { quantity = inputStr; };
 
 private:
@@ -35,6 +38,7 @@ private:
 
     string   way2SetTimeInterval;
     string   timeIntervalListFilename;
+    bool     doRewriteTIListFile;
     string   quantity;
 
     string   outfileName;
@@ -42,7 +46,10 @@ private:
     TFile*   outfile;
 
     void     makeHistogram();
+    void     makeHistWithWindow(string energyRange, double low, double up);
+
     void     prepareDatafileList();
+    void     prepareDatafileList2();
     void     prepareTimeIntervalList();
     bool     hasDatafileInInterval(string inputDTStr, string startDTStr,
 				   string endDTStr, string nextDTStr);
@@ -50,6 +57,9 @@ private:
 				   Calendar* endDT, string nextDTStr);
     bool     hasDatafileInInterval(Calendar* inputDT, Calendar* startDT,
 				   Calendar* endDT, Calendar* nextDT);
+
+    void     outputRecordTxt();
+    void     outputRecordTxt(string txtfile);
 };
 
 #endif
