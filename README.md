@@ -18,11 +18,11 @@ e.g. ./go -fit -if output1 -of fitOutput1
 e.g. ./go -count -if output1 -of countOutput1
 Choose the analysis method, -fit and -count.
 -if output1 assigns source file.
--of fitOutput1 means the analysis result will output to this root file.
+-of fitOutput1 means the analysis result will output to this root file in analyzedFile/.
 
 6. Draw graphs
 e.g. ./go -g -if fitOutput1
-Print the analysis graph. The class for graph drawing is GraphPrinter in include/ and src/
+Print the analysis graph. The class for graph drawing is GraphPrinter in include/ and src/. The graph is stored in plotting/.
 
 Options:
 -h, --help: help manual
