@@ -11,11 +11,23 @@ import ROOT
 from ROOT import TTree
 import yaml
 import sys
+import os
+import errno
 from array import array
 
 if len(sys.argv) != 2:
    print ("USAGE: %s <input file>" %(sys.argv[0]))
    sys.exit(1)
+
+# Create output directory
+try:
+    os.mkdir("data")
+    os.mkdir("yaml")
+except OSError as e:
+    if e.errno == errno.EEXIST:
+        print('Output directory exists.')
+    else:
+        raise
 
 tdmsFileName = sys.argv[1]
 rootFileName = "data/%s.root" %((tdmsFileName.rsplit('/',1)[1]).split('.')[0])
