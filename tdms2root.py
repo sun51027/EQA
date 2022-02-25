@@ -1,4 +1,11 @@
-#!/usr/bin/env python
+# Author: Hsin-Yeh Wu
+# tdms file contains two dictionaries, one is config information, the other is rawdata
+# This code will store the config information (called "objects" in this code) in a yaml file.
+# Data (called "rawdata") will be stored into a root file
+
+# Prerequsites: pyTDMS, PyROOT, PyYAML
+
+#/usr/bin/env python
 import pytdms
 import ROOT
 from ROOT import TTree
@@ -48,25 +55,25 @@ for variable in ["Name", "Events", "Operator", "StartT", "EndT", "VerticalRange"
     a_dict[variable] = eval(variable)
 
 # Write headers into yaml file
-with open(r'yaml/$s.yaml' %((tdmsFileName.rsplit('/',1)[1]).split('.')[0]), 'w') as file:
-   documents = yaml.dump(a_dict, file, default_flow_style=False, sort_keys=False)
+with open(r'yaml/%s.yaml' %((tdmsFileName.rsplit('/',1)[1]).split('.')[0]), 'w') as file:
+    documents = yaml.dump(a_dict, file, default_flow_style=False)
 
 # Initialize output tree
-singlelength = 1
-slicedarray0 = array( 'f', [ 0 ] * singleLength)
-slicedarray1 = array( 'f', [ 0 ] * singleLength)
+eventSampleLength = 1
+slicedarray0 = array( 'f', [ 0 ] * eventSampleLength)
+slicedarray1 = array( 'f', [ 0 ] * eventSampleLength)
 
 t = ROOT.TTree("detector_A", "detector_A")
-t.Branch('ch0',slicedarray0,"slicedarray0[%d]/F" %(singleLength))
-t.Branch('timestamp',slicedarray1,"slicedarray1[%d]/F" %(singleLength))
-#t.Branch('timestamp',slicedarray2,"slicedarray2[%d]/F" %(singleLength))
+t.Branch('ch0',slicedarray0,"slicedarray0[%d]/F" %(eventSampleLength))
+t.Branch('timestamp',slicedarray1,"slicedarray1[%d]/F" %(eventSampleLength))
+#t.Branch('timestamp',slicedarray2,"slicedarray2[%d]/F" %(eventSampleLength))
 
-# Loop
+# Loop raw data
 for index in range (Events):
     if ( index % 10000 == 0 ):
         print ("Processing event", index )
-    start_index = index * singleLength
-    end_index = (index + 1) * singleLength
+    start_index = index * eventSampleLength
+    end_index = (index + 1) * eventSampleLength
     for idx, val in enumerate(range(start_index, end_index)):
         slicedarray0[idx] = rawdata[b"/'Take Data'/'ch0'"][val]
         slicedarray1[idx] = rawdata[b"/'Take Data'/'timestamp'"][val]
