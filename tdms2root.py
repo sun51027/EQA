@@ -2,8 +2,10 @@
 # tdms file contains two dictionaries, one is config information, the other is rawdata
 # This code will store the config information (called "objects" in this code) in a yaml file.
 # Data (called "rawdata") will be stored into a root file
-
+#
 # Prerequsites: pyTDMS, PyROOT, PyYAML
+#
+# Usage: python tdms2root.py <tdmsFile>
 
 #/usr/bin/env python
 import pytdms
