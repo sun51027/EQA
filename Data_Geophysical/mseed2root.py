@@ -55,8 +55,8 @@ for infile in args.in_filenames:
       a_dict[variable] = eval(variable)
 
    # Write headers into yaml file
-   outputFileName = station + '_' + location + '_' + channel + '_' + starttime.strftime("%Y%m%d_%H%M%S")
-   if(args.skim): outputFileName = station + '_' + location + '_' + channel + '_' + starttime.strftime("%Y%m%d_%H%M%S") + '_skim'
+   outputFileName = station + '_' + location + '_' + channel + '_' + starttime.strftime("%Y%m%d") + '_' + endtime.strftime("%Y%m%d")
+   if(args.skim): outputFileName += '_skim'
    with open(f'{yamlDir}/{outputFileName}.yaml' , 'w') as file:
       documents = yaml.dump(a_dict, file, default_flow_style=False)
 
