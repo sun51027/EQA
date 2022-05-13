@@ -1,0 +1,1 @@
+class DocReader: need to reconsider the throw error message, add the hint about assigned term name

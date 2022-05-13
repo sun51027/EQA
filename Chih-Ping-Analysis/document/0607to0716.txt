@@ -1,0 +1,6 @@
+FileFormat: ContinuousPeriodsEndDT
+StartTime: 20210607000000
+EndTime: 20210716000000
+Hour: 2
+Minute: 0
+Second: 0
