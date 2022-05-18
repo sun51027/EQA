@@ -22,12 +22,12 @@ parser.add_argument('--skim','-s',action="store_true",help='skim events. Only ta
 parser.add_argument('--report','-r',default=10,type=int,help='report every x events')
 args = parser.parse_args()
 
+yamlDir = "yamlConfig"
 rootDir = "output_root"
-yamlDir = "yaml"
 # Create output directory
 try:
-   os.mkdir(rootDir)
    os.mkdir(yamlDir)
+   os.mkdir(rootDir)
 except OSError as e:
     if e.errno == errno.EEXIST:
        print('Output directory exists.')
