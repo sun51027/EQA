@@ -1,0 +1,1 @@
+![Data Structure explanation](https://github.com/Hsin-Yeh/EQA/blob/master/Data_Geophysical/DataStructure.png)
