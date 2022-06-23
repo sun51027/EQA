@@ -14,6 +14,9 @@ import sys
 import os
 import errno
 from array import array
+import datetime
+import pytz
+# timezone = pytz.timezone("Asia/Taiwan")
 
 import argparse
 parser = argparse.ArgumentParser(description='convert mseed format file to root file')
@@ -119,6 +122,7 @@ for infile in args.in_filenames:
             if(ns>=1e9):
                ns = 0
                ts += 1# UTCDateTime + 1 second
+      # print("{} {}".format(datetime.datetime.fromtimestamp(ts,pytz.utc),ns)) // print last sample timestamp
 
    t.Write()
    outroot.Close()
