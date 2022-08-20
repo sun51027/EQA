@@ -32,7 +32,8 @@ except OSError as e:
     else:
         raise
 
-for tdmsFileName in args.in_filenames:
+for i, tdmsFileName in enumerate(args.in_filenames):
+   print('Processing %s (%d/%d)'% (tdmsFileName, i, len(args.in_filenames)))
    rootFileName = "%s/%s.root" %(args.outputDir, (tdmsFileName.rsplit('/',1)[1]).split('.')[0])
 
    # Read tdmsfile
