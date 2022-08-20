@@ -37,8 +37,8 @@ except OSError as e:
 corrupted_list=[]
 for i, tdmsFileName in enumerate(args.in_filenames):
    print('Processing %s (%d/%d)'% (tdmsFileName, i, len(args.in_filenames)))
-   if (os.path.getsize(tdmsFileName) < 1e6):
-      print ('File size %d < 1M !!!!!!!!!!!!!!! Skip File !!!!!!!!!!!!!!!' % (os.path.getsize(tdmsFileName)))
+   if (os.path.getsize(tdmsFileName) < 1.5e6):
+      print ('File size %d < 1.6M !!!!!!!!!!!!!!! Skip File !!!!!!!!!!!!!!!' % (os.path.getsize(tdmsFileName)))
       corrupted_list.append(tdmsFileName)
       continue
 
