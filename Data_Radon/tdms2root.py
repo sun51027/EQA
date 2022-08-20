@@ -21,6 +21,7 @@ import argparse
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('in_filenames',nargs="+",help='input filenames')
 parser.add_argument('--outputDir','-d',default="./",type=str,help='output directory')
+parser.add_argument('--corruptedDir','-c',default="/wk_cms2/wuhsinyeh/public/EQ_detector/radonData/",type=str,help='output directory')
 args = parser.parse_args()
 
 # Create output directory
@@ -32,8 +33,14 @@ except OSError as e:
     else:
         raise
 
+corrupted_list=[]
 for i, tdmsFileName in enumerate(args.in_filenames):
    print('Processing %s (%d/%d)'% (tdmsFileName, i, len(args.in_filenames)))
+   if (os.path.getsize(tdmsFileName) < 1e6):
+      print ('File size %d < 1M !!!!!!!!!!!!!!! Skip File !!!!!!!!!!!!!!!' % (os.path.getsize(tdmsFileName)))
+      corrupted_list.append(tdmsFileName)
+      continue
+
    rootFileName = "%s/%s.root" %(args.outputDir, (tdmsFileName.rsplit('/',1)[1]).split('.')[0])
 
    # Read tdmsfile
@@ -101,3 +108,9 @@ for i, tdmsFileName in enumerate(args.in_filenames):
    outHistFile.cd()
    t.Write()
    outHistFile.Close()
+
+print(corrupted_list)
+
+import json
+with open('%s/corrupted.json' %(args.corruptedDir), 'a') as corruptedFile:
+   corruptedFile.write(json.dumps(corrupted_list))
