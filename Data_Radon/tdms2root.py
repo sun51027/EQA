@@ -22,6 +22,7 @@ parser = argparse.ArgumentParser(description='')
 parser.add_argument('in_filenames',nargs="+",help='input filenames')
 parser.add_argument('--outputDir','-d',default="./",type=str,help='output directory')
 parser.add_argument('--corruptedDir','-c',default="/wk_cms2/wuhsinyeh/public/EQ_detector/radonData/",type=str,help='output directory')
+parser.add_argument('--report','-r',default=10000,type=int,help='report every x events')
 args = parser.parse_args()
 
 # Create output directory
@@ -93,7 +94,7 @@ for i, tdmsFileName in enumerate(args.in_filenames):
 
    # Loop raw data
    for index in range (Events):
-       if ( index % 10000 == 0 ):
+       if ( index % args.report == 0 ):
            print ("Processing event", index )
        start_index = index * eventSampleLength
        end_index = (index + 1) * eventSampleLength
