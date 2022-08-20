@@ -23,13 +23,9 @@ parser.add_argument('in_filenames',nargs="+",help='input filenames')
 parser.add_argument('--outputDir','-d',default="./",type=str,help='output directory')
 args = parser.parse_args()
 
-dataDir= args.outputDir + "/data"
-yamlDir= args.outputDir + "/yaml"
-
 # Create output directory
 try:
-    os.mkdir(dataDir)
-    os.mkdir(yamlDir)
+    os.mkdir(args.outputDir)
 except OSError as e:
     if e.errno == errno.EEXIST:
         print('Output directory exists.')
@@ -37,7 +33,7 @@ except OSError as e:
         raise
 
 for tdmsFileName in args.in_filenames:
-   rootFileName = "%s/%s.root" %(dataDir, (tdmsFileName.rsplit('/',1)[1]).split('.')[0])
+   rootFileName = "%s/%s.root" %(args.outputDir, (tdmsFileName.rsplit('/',1)[1]).split('.')[0])
 
    # Read tdmsfile
    (objects,rawdata) = pytdms.read(tdmsFileName)
@@ -74,7 +70,7 @@ for tdmsFileName in args.in_filenames:
        a_dict[variable] = eval(variable)
 
    # Write headers into yaml file
-   with open(r'%s/%s.yaml' %(yamlDir, (tdmsFileName.rsplit('/',1)[1]).split('.')[0]), 'w') as file:
+   with open(r'%s/%s.yaml' %(args.outputDir, (tdmsFileName.rsplit('/',1)[1]).split('.')[0]), 'w') as file:
        documents = yaml.dump(a_dict, file, default_flow_style=False)
 
    # Initialize output tree
