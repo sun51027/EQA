@@ -35,15 +35,16 @@ HistMaker::~HistMaker() {
 
 void HistMaker::execute() {
     setOutfile();
+std::cout << "HistMaker:: start prepare Time Interval List" << std::endl;
     prepareTimeIntervalList();
-    makeHistogram();
-    makeHistWithWindow("peak029", 0.2677, 0.2977);
-    makeHistWithWindow("peak060", 0.5511, 0.6648);
-    makeHistWithWindow("peak146", 1.3918, 1.5057);
-    makeHistWithWindow("0to25", 0., 2.5);
-
-    if(doRewriteTIListFile)
-	outputRecordTxt(timeIntervalListFilename);
+//    makeHistogram();
+//    makeHistWithWindow("peak029", 0.2677, 0.2977);
+//    makeHistWithWindow("peak060", 0.5511, 0.6648);
+//    makeHistWithWindow("peak146", 1.3918, 1.5057);
+//    makeHistWithWindow("0to25", 0., 2.5);
+//
+//    if(doRewriteTIListFile)
+//	outputRecordTxt(timeIntervalListFilename);
 }
 
 
@@ -301,6 +302,8 @@ void HistMaker::prepareTimeIntervalList() {
 	DocReader* docr = new DocReader(timeIntervalListFilename);
 
 	string txtfileFormat = docr->readStrValue("FileFormat");
+	printf(">>> check txtfileFormat = %s\n", txtfileFormat.c_str());
+
 	if(txtfileFormat == "AssignedTimeIntervals") {
 	    ifstream TIListFile;
 	    TIListFile.open(timeIntervalListFilename.c_str());
@@ -325,6 +328,7 @@ void HistMaker::prepareTimeIntervalList() {
 	    }
 
 	    TIListFile.close();
+
 	} else if(txtfileFormat == "ContinuousPeriodsCountTI") {
 	    string startline = docr->readStrValue("StartTime");
 	    int passedHour = docr->readIntValue("Hour");
@@ -340,27 +344,29 @@ void HistMaker::prepareTimeIntervalList() {
 	    }
 
 	    delete dt;
+
 	} else if(txtfileFormat == "ContinuousPeriodsEndDT") {
 	    string startline = docr->readStrValue("StartTime");
-	    string endline = docr->readStrValue("EndTime");
-	    int passedHour = docr->readIntValue("Hour");
-	    int passedMin = docr->readIntValue("Minute");
-	    double passedSec = docr->readDoubleValue("Second");
+	    printf(">>> check startline = %s\n", startline.c_str());
+//	    string endline = docr->readStrValue("EndTime");
+//	    int passedHour = docr->readIntValue("Hour");
+//	    int passedMin = docr->readIntValue("Minute");
+//	    double passedSec = docr->readDoubleValue("Second");
 
-	    Calendar* dt = new Calendar(startline);
-	    Calendar* endDT = new Calendar(endline);
+//	    Calendar* dt = new Calendar(startline);
+//	    Calendar* endDT = new Calendar(endline);
 
-	    while(*dt < *endDT) {
-		startDTofTI.push_back(dt->getDateTime());
-		dt->addDuration(0, 0, passedHour, passedMin, passedSec);
-		if(*dt < *endDT)
-		    endDTofTI.push_back(dt->getDateTime());
-		else if(*dt >= *endDT)
-		    endDTofTI.push_back(endDT->getDateTime());
-	    }
-
-	    delete endDT;
-	    delete dt;
+//	    while(*dt < *endDT) {
+//		startDTofTI.push_back(dt->getDateTime());
+//		dt->addDuration(0, 0, passedHour, passedMin, passedSec);
+//		if(*dt < *endDT)
+//		    endDTofTI.push_back(dt->getDateTime());
+//		else if(*dt >= *endDT)
+//		    endDTofTI.push_back(endDT->getDateTime());
+//	    }
+//
+//	    delete endDT;
+//	    delete dt;
 	}
 
 	delete docr;
@@ -445,7 +451,7 @@ void HistMaker::outputRecordTxt(string txtfile) {
     if(stateRecord.is_open()) {
 	stateRecord << "FileFormat: ContinuousPeriodsEndDT" << endl
 		    << "StartTime: " << endDTofTI[endDTofTI.size() - 1] << endl
-		    << "EndTime: 20220101000000" << endl
+		    << "EndTime: 20220110000000" << endl
 		    << "Hour: 2" << endl
 		    << "Minute: 0" << endl
 		    << "Second: 0" << endl;

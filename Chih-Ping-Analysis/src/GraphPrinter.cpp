@@ -198,7 +198,7 @@ void GraphPrinter::printTimeGraph(string term) {
 	string thisER = ERList[iER];
 	validMean[thisER] /= (double)validEntries[thisER];
 	validStd[thisER] -= ((double)validEntries[thisER])*validMean[thisER]*validMean[thisER];
-	validStd[thisER] = TMath::Sqrt(validStd[thisER]/(double)(validEntries[thisER] - 1));
+	validStd[thisER] = sqrt(validStd[thisER]/(double)(validEntries[thisER] - 1));
     }
 
     map<string, TGraphErrors*> ge;

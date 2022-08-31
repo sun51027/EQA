@@ -123,6 +123,7 @@ int main(int argc, char** argv) {
 }
 
 void main_makeHistogram1() {
+	std:: cout << "Init histrogram maker:"<< std::endl;
     HistMaker* hm = new HistMaker();
     
     if(infileName != "") {
@@ -138,8 +139,11 @@ void main_makeHistogram1() {
     }
 
     hm->setDoRewriteTIListFile(doRewriteTIListFile);
+	std:: cout << "histrogram maker after do rewirte"<< std::endl;
     hm->setQuantity("Energy");
+	std:: cout << "histrogram maker execute start:"<< std::endl;
     hm->execute();
+	std:: cout << "histrogram maker execute Finish:"<< std::endl;
 
     delete hm;
 }

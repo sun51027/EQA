@@ -50,6 +50,7 @@ string DocReader::readStrValue(string term) {
     if(returnStr.size() == 0)
 	throw notFoundStr.c_str();
 
+    printf(">>> check: returnStr = %s\n", returnStr.c_str());
     return returnStr;
 }
 
@@ -141,6 +142,8 @@ void DocReader::loadTermList(string inputFilename) {
 	    aTerm.termName = line.substr(0, line.find_first_of(":"));
 	    string tailOfLine = line.substr(line.find_first_of(":") + 1);
 	    aTerm.valueStr = tailOfLine.substr(tailOfLine.find_first_not_of(" "));
+    	    printf(">>> check aTerm.termName = %s\n", aTerm.termName.c_str());
+    	    printf(">>> check aTerm.valueStr = %s\n", aTerm.valueStr.c_str());
 	    termList.push_back(aTerm);
 	}
     }
